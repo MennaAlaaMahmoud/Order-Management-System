@@ -13,6 +13,8 @@ namespace Domain.Contracts
         Task<IEnumerable<Order>> GetAllAsync();
         Task AddAsync(Order order);
         Task UpdateStatusAsync(int orderId, string newStatus);
+        Task UpdateAsync(Order order);
+
 
     }
 }

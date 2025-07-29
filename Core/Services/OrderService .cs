@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Domain.Contracts;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 using ServicesAbstractions;
+using Shared;
 
 namespace Services
 {
@@ -17,20 +19,24 @@ namespace Services
         private readonly IProductRepository _productRepo;
         private readonly IInvoiceRepository _invoiceRepo;
         private readonly OrderManagementDbContext _context;
+        private readonly IMapper _mapper;
 
         public OrderService(
             IOrderRepository orderRepo,
             IProductRepository productRepo,
             IInvoiceRepository invoiceRepo,
-            OrderManagementDbContext context)
+            OrderManagementDbContext context,
+            IMapper mapper
+            )
         {
             _orderRepo = orderRepo;
             _productRepo = productRepo;
             _invoiceRepo = invoiceRepo;
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<Order> CreateOrderAsync(int customerId, List<OrderItem> items, string paymentMethod)
+        public async Task<OrderResponseDto> CreateOrderAsync(int customerId, List<OrderItem> items, string paymentMethod)
         {
             decimal total = 0;
 
@@ -44,7 +50,6 @@ namespace Services
                 item.Discount = CalculateDiscount(product.Price * item.Quantity);
                 total += (item.UnitPrice * item.Quantity) - item.Discount;
 
-                // Update stock
                 product.Stock -= item.Quantity;
                 await _productRepo.UpdateAsync(product);
             }
@@ -73,7 +78,8 @@ namespace Services
 
             await _context.SaveChangesAsync();
 
-            return order;
+            return _mapper.Map<OrderResponseDto>(order);
+
         }
 
         public async Task UpdateOrderStatusAsync(int orderId, string status)
