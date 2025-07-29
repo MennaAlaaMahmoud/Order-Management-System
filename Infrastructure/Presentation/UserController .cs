@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServicesAbstractions;
 using Shared;
@@ -16,10 +17,12 @@ namespace Presentation
     public class UserController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
 
-        public UserController(IAuthService authService)
+        public UserController(IAuthService authService, IUserService userService)
         {
             _authService = authService;
+            _userService = userService;
         }
 
         [HttpPost("register")]
@@ -43,6 +46,40 @@ namespace Presentation
                 return StatusCode(401, new { message = "Invalid credentials" });
             return Ok(new { token });
         }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAll()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null) return NotFound();
+            return Ok(user);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _userService.DeleteUserAsync(id);
+            return Ok(new { message = "User deleted" });
+        }
+
+        [HttpPut("{id}/role")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateRole(int id, [FromBody] string role)
+        {
+            await _userService.UpdateUserRoleAsync(id, role);
+            return Ok(new { message = "Role updated successfully" });
+        }
+
 
     }
 }

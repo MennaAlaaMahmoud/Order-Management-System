@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Domain.Models;
+using Shared;
 
 namespace ServicesAbstractions
 {
     public interface IInvoiceService
     {
-        Task<IEnumerable<Invoice>> GetAllInvoicesAsync();
-        Task<Invoice> GetInvoiceByIdAsync(int id);
+        Task<List<InvoiceResponseDto>> GetAllInvoicesAsync();
+        Task<InvoiceResponseDto> GetInvoiceByIdAsync(int id);
     }
 
 }

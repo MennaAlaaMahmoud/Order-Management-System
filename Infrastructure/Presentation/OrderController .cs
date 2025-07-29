@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Domain.Contracts;
 using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -18,11 +19,13 @@ namespace Presentation
     {
         private readonly IOrderService _orderService;
         private readonly IOrderRepository _orderRepository;
+        private readonly IMapper _mapper;
 
-        public OrderController(IOrderService orderService, IOrderRepository orderRepository)
+        public OrderController(IOrderService orderService, IOrderRepository orderRepository , IMapper mapper )
         {
             _orderService = orderService;
             _orderRepository = orderRepository;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -52,16 +55,23 @@ namespace Presentation
         public async Task<IActionResult> GetById(int id)
         {
             var order = await _orderRepository.GetByIdAsync(id);
-            return order == null ? NotFound(new { message = "Order not found" }) : Ok(order);
+            if (order == null)
+                return NotFound(new { message = "Order not found" });
+
+            var dto = _mapper.Map<OrderResponseDto>(order);
+            return Ok(dto);
         }
+
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var orders = await _orderRepository.GetAllAsync();
-            return Ok(orders);
+            var dtos = _mapper.Map<List<OrderResponseDto>>(orders);
+            return Ok(dtos);
         }
+
     }
 
 
