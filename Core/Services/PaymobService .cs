@@ -10,7 +10,7 @@ using ServicesAbstractions;
 namespace Services
 {
     // الكريديت والمحفظه الالكترونيه
-    public class PaymobService : IPaymentService
+    public class PaymobService : IPaymobServices
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _config;

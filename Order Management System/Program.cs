@@ -49,8 +49,15 @@ namespace Order_Management_System
              builder.Services.AddScoped<IProductService, ProductService>();
              builder.Services.AddScoped<IAuthService, AuthService>();
              builder.Services.AddScoped<IUserService, UserService>();
-             builder.Services.AddScoped<IPaymentService, PaymentService>();
-           // builder.Services.AddScoped<IPaymentService, PaymobService>();
+            builder.Services.AddHttpClient();
+            builder.Services.AddScoped<IPaymentService, PaymentService>();
+            builder.Services.AddScoped<IPaymobServices, PaymobService>();
+
+
+            ///builder.Services.AddScoped<IPaymentService, PaymobService>();
+
+
+
 
             // Configure AutoMapper
             builder.Services.AddAutoMapper(typeof(MappingProfile));
