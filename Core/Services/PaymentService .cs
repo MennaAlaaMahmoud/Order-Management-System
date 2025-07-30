@@ -11,28 +11,23 @@ namespace Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly IConfiguration _config;
+        private readonly IPaymobServices _paymobService;
 
-        public PaymentService(IConfiguration config)
+        public PaymentService(IPaymobServices paymobService)
         {
-            _config = config;
-            StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+            _paymobService = paymobService;
         }
 
-        public async Task<string> CreatePaymentIntentAsync(decimal amount, string currency)
+        public async Task<string> PayWithCardAsync(decimal amount, string email, string phone)
         {
-            var options = new PaymentIntentCreateOptions
-            {
-                Amount = (long)(amount * 100), // Stripe uses the smallest currency unit
-                Currency = currency,
-                PaymentMethodTypes = new List<string> { "card" },
-            };
+            return await _paymobService.PayWithCardAsync(amount, email, phone);
+        }
 
-            var service = new PaymentIntentService();
-            var intent = await service.CreateAsync(options);
-
-            return intent.ClientSecret;
+        public async Task<string> PayWithWalletAsync(decimal amount, string phone)
+        {
+            return await _paymobService.PayWithWalletAsync(amount, phone);
         }
     }
+
 
 }
